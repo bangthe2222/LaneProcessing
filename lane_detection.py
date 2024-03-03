@@ -38,12 +38,16 @@ class ClusterLane:
         self.top_crop = top_crop
         self.bot_crop = bot_crop
         self.draw_line = draw_line
-        self.counts_intersection = 5
+        self.counts_intersection = 10
         self._count_intersection = False
         self.list_colers = [
             (255, 0, 0),
             (0, 255, 0),
             (0, 0, 255),
+            (255, 0, 255),
+            (0, 255, 255),
+            (255, 0, 255),
+            (0, 255, 255),
             (255, 0, 255),
             (0, 255, 255)
         ]
@@ -298,15 +302,18 @@ def detect_intersection(image):
     pass
 
 if __name__ == "__main__":
-    video = cv2.VideoCapture(0)
+    video = cv2.VideoCapture("./output_video.avi")
 
     lane_processor = ClusterLane()
+    # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    # out = cv2.VideoWriter('output_video.avi', fourcc, 30.0, (640,480))
 
     while True:
         _, frame = video.read()
 
         frame = cv2.resize(frame, (640,480))
-
+        
+        # out.write(frame)
         lane_processor.cluster_lane(frame)
 
         image_out = lane_processor.img
@@ -315,7 +322,7 @@ if __name__ == "__main__":
         print("/////////")
         print("Intersection", lane_processor.get_intersection())
 
-        cv2.circle(image_out,(middle_point[0], middle_point[1] ), 5, (192, 222,140), thickness=7, lineType=cv2.LINE_AA)
+        cv2.circle(image_out,(middle_point[0], middle_point[1] ), 5, (188, 144, 255), thickness=7, lineType=cv2.LINE_AA)
         cv2.imshow("image", frame)
         cv2.imshow("image out", image_out)
         cv2.waitKey(1)
