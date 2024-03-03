@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from sklearn.cluster import DBSCAN
-from utils.utils import find_index_2_lane, sort_by_index, get_bbd
+from utils.utils import find_index_2_lane, sort_by_index, get_bbd, conert_to_binary, caculate_average_pixel_from_line
 
 class ClusterLane:
     """
@@ -9,7 +9,7 @@ class ClusterLane:
     """
     def __init__(self, one_lane_bias = 120, 
                 center_image = 320, 
-                num_points_to_center = 5, 
+                num_points_to_center = 10, 
                 y_middle_point = 10,
                 top_crop = 280,
                 bot_crop = 480,
@@ -38,7 +38,7 @@ class ClusterLane:
         self.top_crop = top_crop
         self.bot_crop = bot_crop
         self.draw_line = draw_line
-        self.counts_intersection = 10
+        self.counts_intersection = 5
         self._count_intersection = False
         self.list_colers = [
             (255, 0, 0),
@@ -79,17 +79,18 @@ class ClusterLane:
 
         """
 
-        # image_process = conert_to_binary(image)
-        # image_process = image_process[top_crop : bot_crop,:]
+
 
         top_crop = self.top_crop
         bot_crop = self.bot_crop
 
         # Crop IoU from origin image
-        img = image[top_crop:bot_crop,:]
+        img_crop = image[top_crop:bot_crop,:]
 
+        img = img_crop.copy()
         # Blur Image
         # blur = cv2.blur(img, (3,3))
+
         # Convert Image to gray
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -97,7 +98,7 @@ class ClusterLane:
         edges = cv2.Canny(gray, 50, 150, apertureSize=3)
         
         # Detect line from egdes
-        lines = cv2.HoughLinesP(edges, 1, np.pi/180, 3, minLineLength=5, maxLineGap=0)
+        lines = cv2.HoughLinesP(edges, 1, np.pi/180, 5, minLineLength=5, maxLineGap=0)
         
         list_points = []
 
@@ -117,7 +118,7 @@ class ClusterLane:
         # Cluster lines 
         if len(data) > 0:
 
-            clustering = DBSCAN(eps=70, min_samples=5).fit(data)
+            clustering = DBSCAN(eps=70, min_samples=10).fit(data)
             labels = clustering.labels_
             
             list_clusters = []
@@ -142,8 +143,6 @@ class ClusterLane:
                 
                 sorted_list_bots.append(sort_by_index(list_data))
                 sorted_list_tops.append(sort_by_index(list_data, 0))
-
-            
 
             list_bot_center = []
             list_top_center = []
@@ -172,12 +171,17 @@ class ClusterLane:
                     x1 = bdb_[1][0]
                     y1 = bdb_[1][1]
 
-                    cv2.rectangle(img, (x0, y0), (x1, y1), self.list_colers[-1], 2, cv2.LINE_AA)
+                    img_lane = img_crop[y0:y1, x0:x1].copy()
+                    # binary_img = conert_to_binary(img_lane)
+                    
+                    # cv2.imshow("lane", binary_img)
+
+                    # draw points and bouding box
                     if self.draw_line:
+                        cv2.rectangle(img, (x0, y0), (x1, y1), self.list_colers[-1], 2, cv2.LINE_AA)
                         cv2.circle(img,(bot_center[0], bot_center[1] ),1,(155,0,155), thickness=3, lineType=cv2.LINE_AA)
                         cv2.circle(img,(top_center[0], top_center[1] ),1,(155,0,155), thickness=3, lineType=cv2.LINE_AA)
-
-            
+       
             # Process 1 lane
             if len(list_bot_center) == 1:
                 bot_data = list_bot_center[0]
@@ -258,7 +262,7 @@ class ClusterLane:
                     cp_y = self.y_middle_point
                     self.middle_point = [cp_x, cp_y]
 
-            # Process 3 lane
+            # Process n lane
             elif len(list_bot_center) >= 3:
                 left_index, right_index = find_index_2_lane(list_bot_center, 320)
 
@@ -289,6 +293,15 @@ class ClusterLane:
         self.img = img
 
     def get_intersection(self):
+        """
+        Check Intersection
+        
+        Parameters:
+        -
+
+        Returns:
+        - is intersection or not
+        """
         old_ = self.intersection
         self.intersection = False
         if not self._count_intersection :
@@ -297,32 +310,53 @@ class ClusterLane:
         return old_
     
 
-def detect_intersection(image):
-
-    pass
-
 if __name__ == "__main__":
-    video = cv2.VideoCapture("./output_video.avi")
 
-    lane_processor = ClusterLane()
+    # read data from camera
+    # video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+    # read data from video file
+    video = cv2.VideoCapture("./data/video_3_3_2024_dust_lane.avi")
+
+    # Init Lane Process Class
+    lane_processor = ClusterLane(
+                                one_lane_bias = 120, 
+                                center_image = 320, 
+                                num_points_to_center = 10, 
+                                y_middle_point = 10,
+                                top_crop = 280,
+                                bot_crop = 480,
+                                draw_line = True
+                                 )
+
+    # Init Video Record
     # fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    # out = cv2.VideoWriter('output_video.avi', fourcc, 30.0, (640,480))
+    # out = cv2.VideoWriter('video_3_3_2024_dust_lane.avi', fourcc, 30.0, (640,480))
 
     while True:
-        _, frame = video.read()
-
+        ret, frame = video.read()
+        if not ret:
+            break
         frame = cv2.resize(frame, (640,480))
         
+        # Write frame to video
         # out.write(frame)
+
+        # Process Lane
         lane_processor.cluster_lane(frame)
 
+        # Get data processed
         image_out = lane_processor.img
         middle_point = lane_processor.middle_point
 
+        # Check Intersection
         print("/////////")
         print("Intersection", lane_processor.get_intersection())
 
+        # Draw middle point
         cv2.circle(image_out,(middle_point[0], middle_point[1] ), 5, (188, 144, 255), thickness=7, lineType=cv2.LINE_AA)
+
+        # Show output image
         cv2.imshow("image", frame)
         cv2.imshow("image out", image_out)
-        cv2.waitKey(1)
+        cv2.waitKey(0)

@@ -41,7 +41,7 @@ def caculate_average_pixel_from_line(A, B, image, num_points = 10):
     points = [(A[0] + (vector_AB[0] * i / (num_points - 1)), A[1] + (vector_AB[1] * i / (num_points - 1))) for i in range(num_points)]
 
     mean = 0
-    std = 4
+    std = 0
     points_noisy = [] 
     for point in points:
         point += np.random.normal(mean, std, 2)
@@ -129,23 +129,23 @@ def conert_to_binary(image):
     Returns:
     - Binary image
     """
-    # Chuyển đổi ảnh sang không gian màu LAB
-    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    # # Chuyển đổi ảnh sang không gian màu LAB
+    # lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
 
-    # Tách các kênh L, A, và B
-    l, a, b = cv2.split(lab)
+    # # Tách các kênh L, A, và B
+    # l, a, b = cv2.split(lab)
 
-    # Cân bằng kênh L (độ sáng)
-    l_equalized = cv2.equalizeHist(l)
+    # # Cân bằng kênh L (độ sáng)
+    # l_equalized = cv2.equalizeHist(l)
 
-    # Gộp các kênh lại với nhau
-    lab_equalized = cv2.merge((l_equalized, a, b))
+    # # Gộp các kênh lại với nhau
+    # lab_equalized = cv2.merge((l_equalized, a, b))
 
-    # Chuyển đổi lại sang không gian màu BGR
-    image_equalized = cv2.cvtColor(lab_equalized, cv2.COLOR_LAB2BGR)
+    # # Chuyển đổi lại sang không gian màu BGR
+    # image_equalized = cv2.cvtColor(lab_equalized, cv2.COLOR_LAB2BGR)
     
     # Chuyển đổi ảnh sang trắng đen (ảnh xám)
-    gray_image = cv2.cvtColor(image_equalized, cv2.COLOR_BGR2GRAY)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Áp dụng ngưỡng hóa để chuyển đổi sang ảnh nhị phân
     # 127 là giá trị ngưỡng, 255 là giá trị được gán cho các pixel vượt qua ngưỡng
