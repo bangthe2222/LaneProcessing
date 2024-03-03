@@ -110,7 +110,7 @@ class ClusterLane:
                     c_x = int((x1 + x2)/2)
                     c_y = int((y1 + y2)/2)
                     list_points.append([c_x, c_y])
-                    # list_points.append([x1, y1])
+                    list_points.append([x1, y1])
                     list_points.append([x2, y2])
         
         data = np.array(list_points)
@@ -118,7 +118,7 @@ class ClusterLane:
         # Cluster lines 
         if len(data) > 0:
 
-            clustering = DBSCAN(eps=70, min_samples=10).fit(data)
+            clustering = DBSCAN(eps=75, min_samples=5).fit(data)
             labels = clustering.labels_
             
             list_clusters = []
@@ -313,10 +313,10 @@ class ClusterLane:
 if __name__ == "__main__":
 
     # read data from camera
-    # video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     # read data from video file
-    video = cv2.VideoCapture("./data/video_3_3_2024_dust_lane.avi")
+    # video = cv2.VideoCapture("./data/video_3_3_2024_dust_lane.avi")
 
     # Init Lane Process Class
     lane_processor = ClusterLane(
@@ -359,4 +359,4 @@ if __name__ == "__main__":
         # Show output image
         cv2.imshow("image", frame)
         cv2.imshow("image out", image_out)
-        cv2.waitKey(0)
+        cv2.waitKey(1)
