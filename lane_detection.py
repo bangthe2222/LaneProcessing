@@ -7,7 +7,7 @@ if __name__ == "__main__":
     # video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     # read data from video file
-    video = cv2.VideoCapture("./data/video_3_3_2024_full_map.mp4")
+    video = cv2.VideoCapture("./data/video_3_3_2024_dust_lane.mp4")
 
     # Init Lane Process Class
     lane_processor = ClusterLane(
@@ -46,10 +46,11 @@ if __name__ == "__main__":
         print("/////////")
         print("Intersection", lane_processor.get_intersection())
 
-        # Draw middle point
-        cv2.circle(image_out,(middle_point[0], middle_point[1] ), 5, (188, 144, 255), thickness=7, lineType=cv2.LINE_AA)
+        if True:
+            # Draw middle point
+            cv2.circle(image_out,(middle_point[0], middle_point[1] ), 5, (188, 144, 255), thickness=7, lineType=cv2.LINE_AA)
 
-        # Show output image
-        cv2.imshow("image", frame)
-        cv2.imshow("image out", image_out)
-        cv2.waitKey(0)
+            # Show output image
+            cv2.imshow("image", frame)
+            cv2.imshow("image out", image_out)
+            cv2.waitKey(0)
