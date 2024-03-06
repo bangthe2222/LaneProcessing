@@ -107,9 +107,9 @@ class ClusterLane:
                 x1, y1, x2, y2 = line[0]
                 if (y1 + y2)/2 < bot_crop - top_crop - 10:
                     
-                    # c_x = int((x1 + x2)/2)
-                    # c_y = int((y1 + y2)/2)
-                    # list_points.append([c_x, c_y])
+                    c_x = int((x1 + x2)/2)
+                    c_y = int((y1 + y2)/2)
+                    list_points.append([c_x, c_y])
                     list_points.append([x1, y1])
                     list_points.append([x2, y2])
         

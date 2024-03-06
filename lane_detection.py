@@ -40,7 +40,7 @@ if __name__ == "__main__":
         image_out = lane_processor.img
         middle_point = lane_processor.middle_point
 
-        print("FPS: ", 1/(time.time() - t1))
+        print("FPS: ", 1/(time.time() - t1 +0.0001))
         # Check Intersection
         print("/////////")
         print("Intersection", lane_processor.get_intersection())
@@ -53,4 +53,4 @@ if __name__ == "__main__":
             # Show output image
             cv2.imshow("image", frame)
             cv2.imshow("image out", image_out)
-            cv2.waitKey(0)
+            cv2.waitKey(1)
