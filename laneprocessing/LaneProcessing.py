@@ -141,8 +141,11 @@ class ClusterLane:
             sorted_list_tops = []
             for list_data in list_clusters:
                 
-                sorted_list_bots.append(sort_by_index(list_data))
-                sorted_list_tops.append(sort_by_index(list_data, 0))
+                list_bot_sorted = sort_by_index(list_data)
+                sorted_list_bots.append(list_bot_sorted)
+                
+                len_list_bot_sorted = int(len(list_bot_sorted)/2)
+                sorted_list_tops.append(sort_by_index(list_bot_sorted[:len_list_bot_sorted], 0))
 
             list_bot_center = []
             list_top_center = []
@@ -152,7 +155,7 @@ class ClusterLane:
 
                 sorted_list_top = sorted_list_tops[i]
                 
-                if len(sorted_list_bot) > self.num_points_to_center:
+                if len(sorted_list_bot) > self.num_points_to_center +2:
                     
                     bot_center = np.mean(sorted_list_bot[-self.num_points_to_center:-1], axis=0, dtype=np.int32)
                     list_bot_center.append(bot_center)
