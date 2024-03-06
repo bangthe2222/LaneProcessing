@@ -155,7 +155,7 @@ class ClusterLane:
 
                 sorted_list_top = sorted_list_tops[i]
                 
-                if len(sorted_list_bot) > self.num_points_to_center +2:
+                if len(sorted_list_top) > self.num_points_to_center:
                     
                     bot_center = np.mean(sorted_list_bot[-self.num_points_to_center:-1], axis=0, dtype=np.int32)
                     list_bot_center.append(bot_center)
